@@ -1,0 +1,7 @@
+node_modules/
+sessions/
+.eslintrc.json
+json.sqlite
+data/
+database.db
+economy.sqlite
