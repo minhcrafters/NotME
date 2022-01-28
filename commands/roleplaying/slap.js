@@ -3,7 +3,7 @@ const fetch = require('node-fetch');
 const Commando = require('discord-akairo');
 
 module.exports = class SlapCommand extends Commando.Command {
-	constructor(client) {
+	constructor() {
 		super('slap', {
 			aliases: ['slap'],
 			category: 'roleplaying',
@@ -28,7 +28,7 @@ module.exports = class SlapCommand extends Commando.Command {
 			const embed = new MessageEmbed()
 				.setColor(user.displayHexColor === '#000000' ? '#ffffff' : user.displayHexColor)
 				.setImage(data.image)
-				.setAuthor((await this.client.language(`${message.author.username} slaps themselves in their face! It hurts...`), message), user.user.displayAvatarURL({ dynamic: true }));
+				.setAuthor(`${message.author.username} slaps themselves in their face! It hurts...`, user.user.displayAvatarURL({ dynamic: true }));
 
 			return message.channel.send({ embeds: [embed] });
 		} else {

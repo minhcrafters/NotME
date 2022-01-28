@@ -88,7 +88,7 @@ class ReadyListener extends Listener {
 		console.log(`Logged in as ${this.client.user.tag}. Client ID: ${this.client.user.id}`);
 		console.log(`Ready on ${this.client.guilds.cache.size} guilds, for a total of ${this.client.users.cache.size} users`);
 
-		this.client.user.setActivity(this.client.config.discord.activity.replace('{p}', this.client.commandHandler.prefix).replace('{usr}', this.client.users.cache.size).replace('{srv}', this.client.guilds.cache.size), { type: this.client.config.discord.activityType });
+		// this.client.user.setActivity(this.client.config.discord.activity.replace('{p}', this.client.commandHandler.prefix).replace('{usr}', this.client.users.cache.size).replace('{srv}', this.client.guilds.cache.size), { type: this.client.config.discord.activityType });
 
 		setInterval(() => {
 			this.client.user.setActivity(this.client.config.discord.activity.replace('{p}', this.client.commandHandler.prefix).replace('{usr}', this.client.users.cache.size).replace('{srv}', this.client.guilds.cache.size), { type: this.client.config.discord.activityType });
@@ -105,14 +105,14 @@ class ReadyListener extends Listener {
 				this.client.commandHandler.modules.filter(cmd => cmd.categoryID === category.id).forEach((cmd) => {
 					cmdList.push({
 						commandName: cmd.toString(),
-						commandUsage: `${this.client.commandHandler.prefix}${cmd.toString()} ${cmd.format ? cmd.format : ''}`,
+						commandUsage: `${this.client.config.discord.prefix}${cmd.toString()} ${cmd.format ? cmd.format : ''}`,
 						commandDescription: cmd.description + `${cmd.channel == 'guild' ? ' (Server-only)' : ''}`,
-						commandAlias: cmd.aliases.length > 0 ? cmd.aliases.join(', ') : 'None',
+						commandAlias: cmd.aliases.some(cmd1 => cmd1 == cmd.toString()) && cmd.aliases.some(cmd1 => cmd1 !== cmd.toString())? cmd.aliases.filter(cmd1 => cmd1 !== cmd.toString()).join(', ') : 'None',
 					});
 				})
 				
 				categoryList.push({
-					category: category.id.toUpperCase(),
+					category: category.id.toTitleCase(),
 					subTitle: `Total commands in this group: Deprecated`,
 					list: cmdList
 				});
@@ -132,7 +132,7 @@ class ReadyListener extends Listener {
 				cert: 'cert string or fs readFileSync'
 			},
 			invite: {
-				redirectUri: 'https://notme.bot.nu/',
+				redirectUri: 'https://notme.bot.nu/close',
 				permissions: '414300106102',
 				clientId: this.client.user.id,
 				scopes: ["bot", "applications.commands"],
@@ -159,6 +159,11 @@ class ReadyListener extends Listener {
 			underMaintenanceAccessKey: 'haohancaiditmemay',
 			underMaintenanceAccessPage: '/getaccess',
 			useUnderMaintenance: false,
+			customPages: [
+				DBD.customPagesTypes.redirectToUrl('/status', ({ user }) => {
+					return 'https://stats.uptimerobot.com/EXZWOclkm1';
+				})
+			],
 			// underMaintenance: {
 			// 	title: 'Under Maintenance',
 			// 	contentTitle: 'This page is under maintenance...',
@@ -276,6 +281,19 @@ class ReadyListener extends Listener {
 							},
 							setNew: async ({ guild, newData }) => {
 								await db.set(`${guild.id}.prefix`, newData);
+								return;
+							}
+						},
+						{
+							optionId: 'nickname',
+							optionName: "Server Nickname",
+							optionDescription: "Change bot's server nickname",
+							optionType: DBD.formTypes.input(this.client.user.username, 1, 20, false, false),
+							getActualSet: async ({ guild }) => {
+								return this.client.guilds.cache.get(guild.id).me.displayName;
+							},
+							setNew: async ({ guild, newData }) => {
+								await this.client.guilds.cache.get(guild.id).me.setNickname(newData);
 								return;
 							}
 						},

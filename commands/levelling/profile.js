@@ -21,7 +21,7 @@ module.exports = class Command extends Commando.Command {
 			args: [
 				{
 					id: 'user',
-					type: 'user',
+					type: 'member',
 					default: m => m.author,
 				}
 			]

@@ -1,6 +1,7 @@
 const { Listener } = require('discord-akairo');
 const fetch = require('node-fetch');
 const db = require('quick.db');
+const functions = require('../utils/functions');
 
 const startDelim = 'tex$';
 const endDelim = '$';
@@ -139,16 +140,18 @@ module.exports = class MessageListener extends Listener {
 							axios
 								.request(options)
 								.then(async (response) => {
+									await message.channel.sendTyping();
+
 									await sleep(functions.randint(500, 2500));
 
 									console.log(response.data);
 
 									const { AIResponse } = response.data;
 
-									message.reply(Replacer(AIResponse));
+									return message.reply(Replacer(AIResponse));
 								})
 								.catch((err) => {
-									console.error(err);
+									return console.error(err);
 								});
 						}
 					}

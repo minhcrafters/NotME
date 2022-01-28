@@ -18,7 +18,7 @@ module.exports = class Command extends Commando.Command {
 		});
 	}
 
-	async run(message, { user }) {
+	async exec(message, { user }) {
 		let response = await fetch('http://api.nekos.fun:8080/api/kiss');
 		let data = await response.json();
 

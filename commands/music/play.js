@@ -18,6 +18,7 @@ module.exports = class Command extends Commando.Command {
 						start: 'What song do you want to play? (This can be a search string or an URL)'
 					},
 					type: 'string',
+					match: 'content'
 				},
 				{
 					id: 'voiceChannel',
@@ -53,11 +54,13 @@ module.exports = class Command extends Commando.Command {
 			query = query.replace(/^\<+|\>+$/g, '');
 		}
 
-		db.set(`${message.guild.id}.queueCreator`, message.author.id);
+		// if (!db.has(`${message.guild.id}.queueCreator`)) {
+			db.set(`${message.guild.id}.queueCreator`, message.author.id);
+		// }
 		
 		message.reply(`${this.client.emotes.search} - ${await this.client.language(`Searching \`${query}\`...`, message)}`);
 
-		return this.client.player.play(voiceChannel, query);
+		return this.client.player.play(message, query);
 
 		/*
 				const num1 = '1️⃣';

@@ -16,6 +16,7 @@ module.exports = class Command extends Commando.Command {
 				{
 					id: 'text',
 					type: 'string',
+					match: 'text'
 				},
 				{
                     id: 'lang',
@@ -27,7 +28,7 @@ module.exports = class Command extends Commando.Command {
 		});
 	}
 
-	async run(message, { text, lang }) {
+	async exec(message, { text, lang }) {
 		try {
 			const translated = await translate(text, { to: lang });
 

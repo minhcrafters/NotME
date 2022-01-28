@@ -1,5 +1,88 @@
 const Commando = require('discord-akairo');
-const { MessageAttachment } = require('discord.js');
+const { MessageAttachment, Util } = require('discord.js');
+
+function getUTCDate(dateString) {
+	const dateInstance = new Date(dateString);
+	return Date.UTC(
+		dateInstance.getYear(),
+		dateInstance.getMonth(),
+		dateInstance.getDate(),
+	);
+}
+
+function messageMatchesDate(message, date) {
+	// Ensure that comparisons are done using UTC.
+	return getUTCDate(date) === getUTCDate(message.createdTimestamp);
+}
+
+async function generateContent(messageObj, messages, date, name) {
+	const generatedMessages = (
+		await Promise.all(
+			messages.map(async message => {
+				let content = `**${message.author.username}${message.author.bot ? ' (BOT)' : ''}:** ${message.content} ${message.embeds.length > 0 ? '(with embeds)' : ''}`;
+
+				if (message.reactions.cache.size) {
+					const reactions = (
+						await Promise.all(
+							Array.from(message.reactions.cache.entries()).map(
+								async ([emoji, { users }]) => {
+									const reaction = await users.fetch();
+									return ` * ${emoji} ${Array.from(reaction.values())
+										.map(({ username }) => `@${username}`)
+										.join(', ')}`;
+								},
+							),
+						)
+					).join('\n');
+
+					content += `\n${reactions}`;
+				}
+
+				return content;
+			}),
+		)
+	).join('\n\n');
+
+	return `__**# ${name ? name + ' ' : ''}Transcript**__\n**Server:** ${messageObj.guild.name}\n**Channel:** #${messageObj.channel.name}\n**Date:** ${date}\n\n${generatedMessages}\n`;
+}
+
+function getTranscriptMessages(messages, date) {
+	return messages
+		.filter(message => messageMatchesDate(message, date))
+		.sort((a, b) => a.createdTimestamp - b.createdTimestamp);
+}
+
+async function fetchMessages(channel, date) {
+	let messages = [];
+
+	// Discord's API limits fetching messages to 50 at a time. Continue requesting batches
+	// until we either have no messages or find a message from a previous date.
+	while (true) {
+		const batch = (
+			await channel.messages.fetch(
+				messages.length ? { before: messages[0].id } : undefined,
+			)
+		).map(x => x);
+
+		if (!batch.length) {
+			break;
+		}
+
+		messages = [...getTranscriptMessages(batch, date), ...messages];
+
+		if (!messageMatchesDate(batch[batch.length - 1], date)) {
+			break;
+		}
+	}
+
+	return messages.map(message => {
+		message.content = message.content.replace(
+			/<@!?(\d+)>/g,
+			(match, p1) => `@${channel.client.users.cache.get(p1).username}`,
+		);
+		return message;
+	});
+}
 
 module.exports = class Command extends Commando.Command {
 	constructor() {
@@ -7,17 +90,43 @@ module.exports = class Command extends Commando.Command {
 			aliases: ['transcript'],
 			category: 'util',
 			channel: 'guild',
-			description: 'Generates a discord-like transcript.',
+			description: 'Generates a message transcript.',
+			args: [
+				{
+					id: 'channel',
+					type: 'textChannel',
+					default: message => message.channel,
+				},
+				{
+					id: 'date',
+					type: 'date',
+					default: new Date(),
+				},
+				{
+					id: 'name',
+					default: null
+				}
+			]
 		});
 	}
 
-	async exec(message) {
-		const data = await this.client.functions.generateTranscript(message.channel, message.guild, await message.channel.messages.fetch({ limit: 100 }));
+	async exec(message, { channel, date, name }) {
+		const channels = await this.client.channels.fetch(channel.id);
+		const messages = await fetchMessages(channels, date);
 
-		this.client.app.get('/transcript')
+		const result = Util.splitMessage(await generateContent(message, messages, date, name));
 
-		const file = new MessageAttachment(data, 'index.html');
-		
-		return message.channel.send({ files: [file] });
+		// const data = await this.client.functions.generateTranscript(message.channel, message.guild, await message.channel.messages.fetch({ limit: 100 }));
+
+		// this.client.app.get('/transcript')
+
+		// const file = new MessageAttachment(data, 'index.html');
+
+		try {
+			result.map(item => message.author.send(item));
+			return message.reply('DM sent!');
+		} catch {
+			return message.reply('Your DMs are disabled!');
+		}
 	}
 };

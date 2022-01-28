@@ -17,7 +17,7 @@ module.exports = class Command extends Commando.Command {
 		});
 	}
 
-	async run(message, { voiceChannel }) {
+	async exec(message, { voiceChannel }) {
 		// var channel = message.mentions.channels.first();
 		// const voiceNotFound = await this.client.language("You're not connected in any voice channel!", message);
 		// const invalidVoice = await this.client.language('Invalid voice channel!', message);

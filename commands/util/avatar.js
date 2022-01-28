@@ -11,12 +11,14 @@ module.exports = class Command extends Commando.Command {
 			args: [
 				{
 					id: 'user',
-					type: 'user',
-					default: m => m.author,
+					type: 'relevant',
+					default: message => message.author,
 				},
 				{
 					id: 'size',
-					prompt: 'Which size?',
+					prompt: {
+						start: 'Which size?'
+					},
 					type: 'integer',
 					default: 4096,
 				},

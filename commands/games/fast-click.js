@@ -11,7 +11,7 @@ module.exports = class Command extends Commando.Command {
 		});
 	}
 
-	async run(message) {
+	async exec(message) {
 		await this.client.weky.QuickClick({
 			message: message,
 			embed: {

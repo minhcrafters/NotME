@@ -33,51 +33,9 @@ module.exports = class BotInfo extends Commando.Command {
 	}
 
 	async exec(message, args) {
-		const owner = await this.client.users.fetch(this.client.config.discord.ownerID).catch((err) => {
-			return console.error(err);
-		});
-
-		if (!owner) {
-			return console.error('Unable to find the owner! Check the ownerID value.');
-		}
-
-		const embed = new Discord.MessageEmbed()
-			.setTitle('General Info')
-			.addFields(
-				{ name: 'Name', value: this.client.user.username, inline: true },
-				{ name: 'Bot ID', value: this.client.user.id, inline: true },
-				{ name: 'Latency', value: `${this.client.ws.ping}ms`, inline: true },
-				{ name: 'Discord.js Version', value: Discord.version, inline: true },
-				{ name: 'Node.js Version', value: process.versions.node, inline: true },
-				{ name: 'Commands', value: this.client.commandHandler.modules.size, inline: true },
-				{ name: 'Slash Commands', value: this.client.slashCreator.commands.size, inline: true }
-				// { name: '\u200B', value: '\u200B' }
-			)
-			// .setImage('https://media.giphy.com/media/3og0IzI7ASX3mW5csg/giphy.gif')
-			.setThumbnail(this.client.user.displayAvatarURL())
-			.setColor(this.client.config.discord.accentColor)
-			.setFooter(`Requested by ${message.author.tag}`, message.author.displayAvatarURL({ dynamic: true }))
-			.setTimestamp();
-
-		let ownerInThisGuild;
-
-		if (message.channel.type !== 'dm') {
-			ownerInThisGuild = await message.guild.members.fetch(owner.id);
-		}
-
-		if (ownerInThisGuild) {
-			embed.addField('Bot Owner', `${owner.tag}\n(${ownerInThisGuild.toString()})`, true);
-		} else {
-			embed.addField('Bot Owner', `${owner.tag}`, true);
-		}
-
-		embed
-			.addField('Vote', '[Top.gg](https://top.gg/bot/873922961491525682/vote)', true);
-
-		message.channel.send({ embeds: [embed] });
-
 		if (args.hostinfo) {
 			// message.author.send('Additional info since you have admin permissions:');
+			message.channel.send({ embeds: [embed] });
 
 			const cpuData = await si.cpu();
 			const memData = await si.mem();
@@ -139,7 +97,50 @@ module.exports = class BotInfo extends Commando.Command {
 				// }`
 			);
 
-			message.channel.send({ embeds: [embed1, embed2, embed3] });
+			return message.channel.send({ embeds: [embed1, embed2, embed3] });
+		} else {
+			const owner = await this.client.users.fetch(this.client.ownerID).catch((err) => {
+				return console.error(err);
+			});
+
+			if (!owner) {
+				return console.error('Unable to find the owner! Check the ownerID value.');
+			}
+
+			const embed = new Discord.MessageEmbed()
+				.setTitle('General Info')
+				.addFields(
+					{ name: 'Name', value: this.client.user.username, inline: true },
+					{ name: 'Bot ID', value: this.client.user.id, inline: true },
+					{ name: 'Latency', value: `${this.client.ws.ping}ms`, inline: true },
+					{ name: 'Discord.js Version', value: Discord.version, inline: true },
+					{ name: 'Node.js Version', value: process.versions.node, inline: true },
+					{ name: 'Commands', value: this.client.commandHandler.modules.size.toString(), inline: true },
+					{ name: 'Slash Commands', value: this.client.slashCreator.commands.size.toString(), inline: true }
+					// { name: '\u200B', value: '\u200B' }
+				)
+				// .setImage('https://media.giphy.com/media/3og0IzI7ASX3mW5csg/giphy.gif')
+				.setThumbnail(this.client.user.displayAvatarURL())
+				.setColor(this.client.config.discord.accentColor)
+				.setFooter(`Requested by ${message.author.tag}`, message.author.displayAvatarURL({ dynamic: true }))
+				.setTimestamp();
+
+			let ownerInThisGuild;
+
+			if (message.channel.type !== 'dm') {
+				ownerInThisGuild = await message.guild.members.fetch(owner.id);
+			}
+
+			if (ownerInThisGuild) {
+				embed.addField('Bot Owner', `${owner.tag}\n(${ownerInThisGuild})`, true);
+			} else {
+				embed.addField('Bot Owner', `${owner.tag}`, true);
+			}
+
+			embed
+				.addField('Vote', '[Top.gg](https://top.gg/bot/873922961491525682/vote)', true);
+
+			return message.channel.send({ embeds: [embed] });
 		}
 	}
 };

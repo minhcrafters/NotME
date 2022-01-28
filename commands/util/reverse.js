@@ -10,6 +10,7 @@ module.exports = class Command extends Commando.Command {
 				{
 					id: 'text',
 					type: 'string',
+					match: 'content'
 				},
 			],
 		});

@@ -1,0 +1,12 @@
+{
+  "files": {
+    "commands/music/volume.js": [
+      {
+        "id": "1e64fc80-999a-4e4b-8a47-4b48419ba55e",
+        "line": 46,
+        "version": 9,
+        "index": 1915
+      }
+    ]
+  }
+}

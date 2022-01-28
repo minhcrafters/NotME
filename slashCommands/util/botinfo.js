@@ -45,8 +45,8 @@ module.exports = class BotInfo extends Commando.SlashCommand {
 				{ name: 'Latency', value: `${this.client.ws.ping}ms`, inline: true },
 				{ name: 'Discord.js Version', value: Discord.version, inline: true },
 				{ name: 'Node.js Version', value: process.versions.node, inline: true },
-				{ name: 'Commands', value: this.client.commandHandler.modules.size, inline: true },
-				{ name: 'Slash Commands', value: this.creator.commands.size, inline: true }
+				{ name: 'Commands', value: this.client.commandHandler.modules.size.toString(), inline: true },
+				{ name: 'Slash Commands', value: this.creator.commands.size.toString(), inline: true }
 				// { name: '\u200B', value: '\u200B' }
 			)
 			// .setImage('https://media.giphy.com/media/3og0IzI7ASX3mW5csg/giphy.gif')

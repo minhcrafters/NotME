@@ -25,6 +25,12 @@ const { AkairoClient, CommandHandler, ListenerHandler, SQLiteProvider } = requir
 const sqlite = require('sqlite');
 const sqlite3 = require('sqlite3');
 
+String.prototype.toTitleCase = function () {
+	return this.replace(/\w\S*/g, function(txt) {
+		return txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase();
+	});
+};
+
 class Client extends AkairoClient {
 	constructor() {
         super({
@@ -48,26 +54,26 @@ class Client extends AkairoClient {
                 if (message.guild) {
                     // return this.settings.get(message.guild.id, 'prefix', config.discord.prefix);
 					if (db.has(`${message.guild.id}.prefix`)) {
-						return db.get(`${message.guild.id}.prefix`).toString();
+						return db.get(`${message.guild.id}.prefix`);
 					} else {
 						db.set(`${message.guild.id}.prefix`, config.discord.prefix);
-						return db.get(`${message.guild.id}.prefix`).toString();
+						return db.get(`${message.guild.id}.prefix`);
 					}
                 }
 
                 return config.discord.prefix;
             },
-			argumentDefaults: {
-				prompt: {
-					modifyStart: text => `${text}\nType \`cancel\` to cancel this command.`,
-					modifyRetry: text => `${text}\nType \`cancel\` to cancel this command.`,
-					timeout: 'Time ran out, command has been cancelled.',
-					ended: 'Too many retries, command has been cancelled.',
-					cancel: 'Command has been cancelled.',
-					retries: 4,
-					time: 30000
-				}
-			}
+			// argumentDefaults: {
+			// 	prompt: {
+			// 		modifyStart: text => `${text}\nType \`cancel\` to cancel this command.`,
+			// 		modifyRetry: text => `${text}\nType \`cancel\` to cancel this command.`,
+			// 		timeout: 'Time ran out, command has been cancelled.',
+			// 		ended: 'Too many retries, command has been cancelled.',
+			// 		cancel: 'Command has been cancelled.',
+			// 		retries: 4,
+			// 		time: 30000
+			// 	}
+			// }
         });
 
 		this.listenerHandler = new ListenerHandler(this, {
@@ -132,17 +138,20 @@ client.weky = weky;
 client.logger = logger;
 
 client.language = async (text, message) => {
-	let lang = 'en';
+	return text;
 
-	if (message.guild) {
-		lang = db.has(`${message.guild.id}.lang`) ? db.get(`${message.guild.id}.lang`) : 'en';
-	}
+	// TODO: Implement Language System
+	// let lang = 'en';
+
+	// if (message.guild) {
+	// 	lang = db.has(`${message.guild.id}.lang`) ? db.get(`${message.guild.id}.lang`) : 'en';
+	// }
 	
-	if (lang == 'en') return text.toString();
+	// if (lang == 'en') return text.toString();
 
-	const translated = await translate(text, { from: 'en', to: lang });
+	// const translated = await translate(text, { from: 'en', to: lang });
 
-	return translated.text.toString().replace(/< @ /g, '<@').replace(/<# /g, '<#').replace(/<@ /g, '<@').replace(/< # /g, '<#').replace(/ # /g, '#').replace(/＃/g, '#');
+	// return translated.text.toString().replace(/< @ /g, '<@').replace(/<# /g, '<#').replace(/<@ /g, '<@').replace(/< # /g, '<#').replace(/ # /g, '#').replace(/＃/g, '#');
 }
 
 if (!Array.isArray(db.get('giveaways'))) db.set('giveaways', []);
@@ -298,7 +307,10 @@ distube.on('addList', async (queue, playlist) => {
 	queue.textChannel.send(`${queue.client.emotes.success} - ${await client.language(`Added **${playlist.name}** playlist (${playlist.songs.length} songs) to the queue!`, queue.textChannel.lastMessage)}`);
 });
 
-distube.on('searchInvalidAnswer', async (message) => message.channel.send((await client.language('You answered an invalid number!', message))));
+distube.on('searchInvalidAnswer', async (message) => {
+	message.channel.send((await client.language('You answered an invalid number!', message)))
+	db.set(`${message.guild.id}.queueCreator`, null);
+});
 
 distube.on('searchResult', async (message, results) => {
 	const embed = new MessageEmbed()
@@ -308,11 +320,12 @@ distube.on('searchResult', async (message, results) => {
 		.setTimestamp()
 		.setDescription(`${results.map((song, i) => `**#${i + 1}** - [${song.name}](${song.url}) by [${song.uploader.name}](${song.uploader.url}) - \`[${song.formattedDuration}]\``).join('\n')}`);
 
-	message.channel.send(embed);
+	message.channel.send({ embeds: [embed] });
 });
 
 distube.on('searchCancel', (queue) => {
 	queue.textChannel.send(`${queue.client.emotes.error} - Search cancelled!`);
+	db.set(`${queue.textChannel.guild.id}.queueCreator`, null);
 });
 
 // distube.on('queueEnd', (queue) => {
@@ -325,11 +338,13 @@ distube.on('searchCancel', (queue) => {
 
 distube.on('searchNoResult', async (message, query) => {
 	message.channel.send(`${message.client.emotes.error} - ${await client.language(`No results found for \`${query}\`!`, message)}`);
+	db.set(`${message.guild.id}.queueCreator`, null);
 });
 
 distube.on('error', (channel, error) => {
 	console.error(error);
 	channel.send(`${channel.client.emotes.error} - **ERROR**\`\`\`js\n${error.message.substring(0, 2000)}\n\`\`\``);
+	db.set(`${channel.guild.id}.queueCreator`, null);
 });
 
 distube.on('initQueue', (queue) => {
@@ -339,6 +354,7 @@ distube.on('initQueue', (queue) => {
 
 distube.on('empty', async (queue) => {
 	queue.textChannel.send(`${queue.client.emotes.error} - ${await client.language('Music stopped as there is no more members in the voice channel!', queue.textChannel.lastMessage)}`);
+	db.set(`${queue.textChannel.guild.id}.queueCreator`, null);
 });
 
 // distube.on('connectionCreate', (queue, connection) => {
@@ -364,52 +380,60 @@ client.slashCreator
 	.on('debug', (log) => logger.log(log))
 	.on('commandRun', (command, promise, ctx) => {
 		statcord.postCommand(command.commandName, ctx.user.id);
-		logger.log('[===== Slash Command executed =====]');
-		// logger.log(`Server: ${ctx.guild ? ctx.guild.name : 'DM'}`);
-		// logger.log(`Channel: #${ctx.channel.type !== 'dm' ? ctx.channel.name : 'DM'}`);
-		logger.log(`Command Name: ${command.commandName}`);
-		logger.log('\n');
+		console.log('[===== Slash Command executed =====]');
+		// console.log(`Server: ${ctx.guild ? ctx.guild.name : 'DM'}`);
+		// console.log(`Channel: #${ctx.channel.type !== 'dm' ? ctx.channel.name : 'DM'}`);
+		console.log(`Command Name: ${command.commandName}`);
+		console.log('\n');
 	})
 	.on('commandError', (command, err, ctx) => {
 		console.error(err);
 	})
 	.on('commandBlock', (command, ctx, reason) => {
-		logger.log(`Command ${command ? `${command.commandName}` : ''} blocked\n${reason}`);
+		console.log(`Command ${command ? `${command.commandName}` : ''} blocked\n${reason}`);
 	});
 
 const poster = AutoPoster(process.env.TOPGG_TOKEN, client);
 
 poster.on('posted', (stats) => {
-	logger.log(`Posted stats to Top.gg`);
+	console.log(`Posted stats to Top.gg`);
 })
 
 client
 	.on('debug', (log) => logger.log(log))
 	.on('disconnect', () => { console.warn('Disconnected!'); })
 	.on('reconnecting', () => { console.warn('Reconnecting...'); })
-	.on('commandRun', (command, promise, message) => {
-		statcord.postCommand(command.name, message.author.id);
-		logger.log('[===== Command executed =====]');
-		logger.log(`Server: ${message.guild ? message.guild.name : 'DM'}`);
-		logger.log(`Channel: #${message.channel.type !== 'dm' ? message.channel.name : 'DM'}`);
-		logger.log(`Command Name: ${command.name}`);
-		logger.log(`Message Content: ${message.content}`);
-		logger.log('\n');
+
+client.commandHandler
+	.on('commandFinished', (message, command, args, returnValue) => {
+		statcord.postCommand(command.id, message.author.id);
+		console.log('[===== Command executed =====]');
+		console.log(`Server: ${message.guild ? message.guild.name : 'DM'}`);
+		console.log(`Channel: #${message.channel.type !== 'dm' ? message.channel.name : 'DM'}`);
+		console.log(`Command Name: ${command.id}`);
+		console.log(`Message Content: ${message.content}`);
+		console.log(`Returned Value: ${returnValue}`);
+		console.log('\n');
 	})
-	.on('commandError', (cmd, err) => {
-		if (err instanceof Commando.FriendlyError) return;
-		console.error(err);
+	.on('error', (err, message, cmd) => {
+		return message.reply([
+			`An error occured while trying to run \`${cmd.id}\` command:`,
+			`\`\`\`js\n${err.message}\n\`\`\``
+		].join('\r\n'))
 	})
-	.on('commandBlock', (msg, reason) => {
-		logger.log(`Command ${msg.command ? `${msg.command.groupID}:${msg.command.memberName}` : ''} blocked; ${reason}`);
-	});
+	.on('commandBlocked', (message, cmd, reason) => {
+		return message.reply([
+			`A blockage occured while trying to run \`${cmd.id}\` command:`,
+			`\`\`\`js\n${reason}\n\`\`\``
+		].join('\r\n'))
+	})
 
 statcord.on("autopost-start", () => {
-    logger.log("Started autopost for Statcord");
+    console.log("Started autopost for Statcord");
 });
 
 statcord.on("post", status => {
-    if (!status) logger.log("Posted stats to Statcord");
+    if (!status) console.log("Posted stats to Statcord");
     else console.error(status);
 });
 

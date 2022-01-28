@@ -29,6 +29,8 @@ module.exports = class UserInfo extends Commando.Command {
 		// 	offline: 'https://emoji.gg/assets/emoji/7445_status_offline.png',
 		// };
 
+		user = await user.fetch(true);
+
 		let badges = await user.flags;
 		badges = (await badges) ? badges.toArray() : ['None'];
 
@@ -166,7 +168,7 @@ module.exports = class UserInfo extends Commando.Command {
 				`**ID:** \`${user.id}\``,
 				`**Discriminator:** \`${user.discriminator}\``,
 				`**Is a bot?** ${user.bot ? 'Yes' : 'No'}`
-			])
+			].join('\r\n'))
 			.addField('Badges', functions.toTitleCase(newbadges.join(', ').replace(/_/g, ' ')) || 'None')
 			.setFooter(`Requested by ${message.author.tag}`, message.author.displayAvatarURL({ dynamic: true }))
 			.setTimestamp();

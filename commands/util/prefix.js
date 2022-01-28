@@ -20,6 +20,7 @@ module.exports = class PrefixCommand extends Commando.Command {
 				{
 					id: 'prefix',
 					type: 'string',
+					match: 'content',
 					default: ''
 				}
 			]
@@ -28,8 +29,8 @@ module.exports = class PrefixCommand extends Commando.Command {
 
 	async exec(message, args) {
 		if (args.prefix == '' || !args.prefix) {
-			const prefix = db.get(message.guild.id, 'prefix');
-			return message.reply(`${prefix ? `The command prefix is \`${prefix}\`.` : 'There is no command prefix.'}\n.`);
+			const prefix = db.get(`${message.guild.id}.prefix`);
+			return message.reply(`${prefix ? `The command prefix is \`${prefix}\`.` : 'There is no command prefix.'}`);
 		}
 
 		if (message.guild) {

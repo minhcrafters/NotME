@@ -28,7 +28,7 @@ module.exports = class Command extends Commando.Command {
 				{
 					id: 'options',
 					type: 'string',
-					match: 'rest'
+					match: 'separate'
 				}
 			]
 		});
@@ -39,7 +39,7 @@ module.exports = class Command extends Commando.Command {
 		if (!args.title) return message.reply(`${this.client.emotes.error} - ${await this.client.language('Poll title is not given.', message)}`);
 		if (!args.options) return message.reply(`${this.client.emotes.error} - ${await this.client.language('Poll options is not given.', message)}`);
 
-		const options = args.options.split(' ');
+		const options = args.options;
 
 		if (options.length < 2) return message.reply(`${this.client.emotes.error} - ${await this.client.language('Please provide more than one choice.', message)}`);
 		if (options.length > emojiList.length) return message.reply(`${this.client.emotes.error} - ${await this.client.language(`Please provide ${emojiList.length} or less choices.`, message)}`);

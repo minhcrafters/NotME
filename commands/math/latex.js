@@ -16,7 +16,7 @@ module.exports = class Command extends Commando.Command {
 		});
 	}
 
-	async run(message, { anything }) {
+	async exec(message, { anything }) {
 		const tex = anything;
 
 		functions
