@@ -3,8 +3,8 @@ const Commando = require('discord-akairo');
 
 module.exports = class Command extends Commando.Command {
 	constructor() {
-		super('fasttype', {
-			aliases: ['fast-type'],
+		super('fasttyper', {
+			aliases: ['fast-type', 'fast-typer'],
 			category: 'games',
 			channel: 'guild',
 			description: 'typing goes brrr',
@@ -61,8 +61,7 @@ module.exports = class Command extends Commando.Command {
 				', ' +
 				adjectives[rand4] +
 				' ' +
-				nouns[rand6] +
-				'.';
+				nouns[rand6];
 
 			return content;
 		}

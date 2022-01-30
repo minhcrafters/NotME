@@ -4,7 +4,7 @@ const Commando = require('discord-akairo');
 module.exports = class Command extends Commando.Command {
 	constructor() {
 		super('cleanup', {
-			aliases: ['clean'],
+			aliases: ['cleanup', 'clean'],
 			category: 'levelling',
 			channel: 'guild',
 			description: 'Cleans old users.',

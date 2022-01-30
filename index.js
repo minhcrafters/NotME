@@ -13,8 +13,6 @@ const db = require('quick.db');
 
 var logger = Logger.createLogger(process.env.LOGDNA_KEY);
 
-const axios = require('axios').default;
-
 const apikey = process.env.HYPIXEL;
 
 const HypixelAPIReborn = require('hypixel-api-reborn');
@@ -63,22 +61,30 @@ class Client extends AkairoClient {
 
                 return config.discord.prefix;
             },
-			// argumentDefaults: {
-			// 	prompt: {
-			// 		modifyStart: text => `${text}\nType \`cancel\` to cancel this command.`,
-			// 		modifyRetry: text => `${text}\nType \`cancel\` to cancel this command.`,
-			// 		timeout: 'Time ran out, command has been cancelled.',
-			// 		ended: 'Too many retries, command has been cancelled.',
-			// 		cancel: 'Command has been cancelled.',
-			// 		retries: 4,
-			// 		time: 30000
-			// 	}
-			// }
+			handleEdits: true,
+    		commandUtil: true,
+			argumentDefaults: {
+				prompt: {
+					// modifyStart: text => `${text}\nType \`cancel\` to cancel this command.`,
+					// modifyRetry: text => `${text}\nType \`cancel\` to cancel this command.`,
+					timeout: 'Time ran out, command has been cancelled.',
+					ended: 'Too many retries, command has been cancelled.',
+					cancel: 'Command has been cancelled.',
+					retries: 4,
+					time: 30000
+				}
+			}
         });
 
 		this.listenerHandler = new ListenerHandler(this, {
             directory: './listeners/'
         });
+
+		this.listenerHandler.setEmitters({
+			process: process,
+			commandHandler: this.commandHandler,
+    		listenerHandler: this.listenerHandler,
+		});
 
 		this.commandHandler.useListenerHandler(this.listenerHandler);
 		this.listenerHandler.loadAll();
@@ -200,8 +206,7 @@ const GiveawayManager2 = class extends GiveawaysManager {
 	}
 };
 
-const { SoundCloudPlugin } = require('@distube/soundcloud');
-const { SpotifyPlugin } = require('@distube/spotify');
+const { YtDlpPlugin } = require("@distube/yt-dlp");
 
 const distube = new DisTube.default(client, {
 	searchSongs: 10,
@@ -243,11 +248,7 @@ const distube = new DisTube.default(client, {
 	},
 	emitAddSongWhenCreatingQueue: false,
 	plugins: [
-		new SpotifyPlugin({
-			emitEventsAfterFetching: true,
-			parallel: false
-		}),
-		new SoundCloudPlugin(),
+		new YtDlpPlugin(),
 	],
 	ytdlOptions: {
 		filter: 'audioonly',
@@ -296,15 +297,42 @@ client.giveawaysManager = manager;
 // logger.log(table.toString());
 
 distube.on('playSong', async (queue, track) => {
-	queue.textChannel.send(`${queue.client.emotes.music} - Now playing **${track.name}** to ${queue.voiceChannel.toString()} ...`);
+	const embed = new MessageEmbed()
+		.setColor(queue.textChannel.lastMessage.client.config.discord.accentColor)
+		.setAuthor({ name: 'Now playing', iconURL: queue.textChannel.lastMessage.client.user.displayAvatarURL() })
+		.setTitle(track.name)
+		.setURL(track.url)
+		.setThumbnail(track.thumbnail)
+		.setFooter({ text: `Requested by ${track.user.tag}`, iconURL: track.user.displayAvatarURL() })
+		.setTimestamp();
+	// queue.textChannel.send(`${queue.client.emotes.music} - Now playing **${track.name}** to ${queue.voiceChannel.toString()} ...`);
+	queue.textChannel.send({ embeds: [embed] });
 });
 
-distube.on('addSong', async (queue, song) => {
-	queue.textChannel.send(`${queue.client.emotes.success} - ${await client.language(`Added **${song.name}** to the queue!`, queue.textChannel.lastMessage)}`);
+distube.on('addSong', async (queue, track) => {
+	const embed = new MessageEmbed()
+		.setColor(queue.textChannel.lastMessage.client.config.discord.accentColor)
+		.setAuthor({ name: 'Added song to queue', iconURL: queue.textChannel.lastMessage.client.user.displayAvatarURL() })
+		.setTitle(track.name)
+		.setURL(track.url)
+		.setThumbnail(track.thumbnail)
+		.setFooter({ text: `Requested by ${track.user.tag}`, iconURL: track.user.displayAvatarURL() })
+		.setTimestamp();
+	queue.textChannel.send({ embeds: [embed] })
+	// queue.textChannel.send(`${queue.client.emotes.success} - ${await client.language(`Added **${song.name}** to the queue!`, queue.textChannel.lastMessage)}`);
 });
 
 distube.on('addList', async (queue, playlist) => {
-	queue.textChannel.send(`${queue.client.emotes.success} - ${await client.language(`Added **${playlist.name}** playlist (${playlist.songs.length} songs) to the queue!`, queue.textChannel.lastMessage)}`);
+	const embed = new MessageEmbed()
+		.setColor(queue.textChannel.lastMessage.client.config.discord.accentColor)
+		.setAuthor({ name: `Added playlist to queue ${playlist.songs.length}`, iconURL: queue.textChannel.lastMessage.client.user.displayAvatarURL() })
+		.setTitle(playlist.name)
+		.setURL(playlist.url)
+		.setThumbnail(track.thumbnail)
+		.setFooter({ text: `Requested by ${playlist.user.tag}`, iconURL: playlist.user.displayAvatarURL() })
+		.setTimestamp();
+	queue.textChannel.send({ embeds: [embed] });
+	// queue.textChannel.send(`${queue.client.emotes.success} - ${await client.language(`Added **${playlist.name}** playlist (${playlist.songs.length} songs) to the queue!`, queue.textChannel.lastMessage)}`);
 });
 
 distube.on('searchInvalidAnswer', async (message) => {
@@ -316,7 +344,7 @@ distube.on('searchResult', async (message, results) => {
 	const embed = new MessageEmbed()
 		.setColor(message.client.config.discord.accentColor)
 		.setTitle((await client.language(`Choose a song to play`, message)))
-		.setFooter((await client.language("Type the specified song's position in the chat\nor wait for 30 seconds to cancel.", message)))
+		.setFooter((await client.language("Type the specified song's position in the chat or wait 30 seconds to cancel.", message)))
 		.setTimestamp()
 		.setDescription(`${results.map((song, i) => `**#${i + 1}** - [${song.name}](${song.url}) by [${song.uploader.name}](${song.uploader.url}) - \`[${song.formattedDuration}]\``).join('\n')}`);
 
@@ -405,16 +433,6 @@ client
 	.on('reconnecting', () => { console.warn('Reconnecting...'); })
 
 client.commandHandler
-	.on('commandFinished', (message, command, args, returnValue) => {
-		statcord.postCommand(command.id, message.author.id);
-		console.log('[===== Command executed =====]');
-		console.log(`Server: ${message.guild ? message.guild.name : 'DM'}`);
-		console.log(`Channel: #${message.channel.type !== 'dm' ? message.channel.name : 'DM'}`);
-		console.log(`Command Name: ${command.id}`);
-		console.log(`Message Content: ${message.content}`);
-		console.log(`Returned Value: ${returnValue}`);
-		console.log('\n');
-	})
 	.on('error', (err, message, cmd) => {
 		return message.reply([
 			`An error occured while trying to run \`${cmd.id}\` command:`,

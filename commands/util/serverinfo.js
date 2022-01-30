@@ -8,7 +8,7 @@ module.exports = class UserInfo extends Commando.Command {
 	constructor() {
 		super('serverinfo', {
 			aliases: ['serverinfo', 'server'],
-			category: 'info',
+			category: 'util',
 			channel: 'guild',
 			description: 'Get information about the server.',
 		});
@@ -34,7 +34,7 @@ module.exports = class UserInfo extends Commando.Command {
 				`**Region:** (Deprecated)`,
 				`**Boost Tier:** ${message.guild.premiumTier ? `${message.guild.premiumTier.replace(/_/g, ' ').toTitleCase()}` : 'None'}`,
 				`**Boost Count:** ${message.guild.premiumSubscriptionCount || '0'}`,
-				`**Has a rules channel?**: ${message.rulesChannel ? `Yes, so read the rules in ${message.rulesChannel}.` : `Unfortunately no.`}`
+				`**Has a rules channel?:** ${message.guild.rulesChannel ? `Yes, so read the rules in ${message.guild.rulesChannel}.` : `Unfortunately no.`}`
 			].join('\r\n'))
 			.setFooter(`Requested by ${message.author.tag}`, message.author.avatarURL({ dynamic: true }))
 			.setTimestamp();

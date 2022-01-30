@@ -15,11 +15,11 @@ function messageMatchesDate(message, date) {
 	return getUTCDate(date) === getUTCDate(message.createdTimestamp);
 }
 
-async function generateContent(messageObj, messages, date, name) {
+async function generateContent(channel, messages, date, name) {
 	const generatedMessages = (
 		await Promise.all(
 			messages.map(async message => {
-				let content = `**${message.author.username}${message.author.bot ? ' (BOT)' : ''}:** ${message.content} ${message.embeds.length > 0 ? '(with embeds)' : ''}`;
+				let content = `**${message.author.username}${message.author.bot ? ' (BOT)' : ''}:** ${message.content}${message.embeds.length > 0 ? ' (embeds)' : ''}`;
 
 				if (message.reactions.cache.size) {
 					const reactions = (
@@ -27,9 +27,9 @@ async function generateContent(messageObj, messages, date, name) {
 							Array.from(message.reactions.cache.entries()).map(
 								async ([emoji, { users }]) => {
 									const reaction = await users.fetch();
-									return ` * ${emoji} ${Array.from(reaction.values())
+									return `- * ${Array.from(reaction.values())
 										.map(({ username }) => `@${username}`)
-										.join(', ')}`;
+										.join(', ')} reacted with: ${emoji}`;
 								},
 							),
 						)
@@ -43,7 +43,7 @@ async function generateContent(messageObj, messages, date, name) {
 		)
 	).join('\n\n');
 
-	return `__**# ${name ? name + ' ' : ''}Transcript**__\n**Server:** ${messageObj.guild.name}\n**Channel:** #${messageObj.channel.name}\n**Date:** ${date}\n\n${generatedMessages}\n`;
+	return `__**# ${name ? name + ' ' : ''}Transcript**__\n**Server:** ${channel.guild.name}\n**Channel:** #${channel.name}\n**Date:** ${date}\n\n${generatedMessages}\n`;
 }
 
 function getTranscriptMessages(messages, date) {
@@ -100,10 +100,11 @@ module.exports = class Command extends Commando.Command {
 				{
 					id: 'date',
 					type: 'date',
-					default: new Date(),
+					default: (new Date()).toString(),
 				},
 				{
 					id: 'name',
+					match: 'content',
 					default: null
 				}
 			]
@@ -111,10 +112,9 @@ module.exports = class Command extends Commando.Command {
 	}
 
 	async exec(message, { channel, date, name }) {
-		const channels = await this.client.channels.fetch(channel.id);
-		const messages = await fetchMessages(channels, date);
+		const messages = await fetchMessages(channel, date);
 
-		const result = Util.splitMessage(await generateContent(message, messages, date, name));
+		const result = Util.splitMessage(await generateContent(channel, messages, date, name));
 
 		// const data = await this.client.functions.generateTranscript(message.channel, message.guild, await message.channel.messages.fetch({ limit: 100 }));
 

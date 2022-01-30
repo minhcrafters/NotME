@@ -6,7 +6,7 @@ const ms = require('ms');
 module.exports = class Command extends Commando.Command {
 	constructor() {
 		super('nowplaying', {
-			aliases: ['nowplaying', 'np'],
+			aliases: ['now-playing', 'np'],
 			category: 'music',
 			channel: 'guild',
 			description: 'Shows playing stats of a song as an embed.',

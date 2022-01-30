@@ -14,7 +14,8 @@ module.exports = class Command extends Commando.Command {
 					prompt: {
 						start: 'What color do you like to search?'
 					},
-					type: 'string'
+					type: 'string',
+					match: 'content',
 				}
 			]
 		});

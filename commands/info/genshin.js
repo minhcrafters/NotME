@@ -20,6 +20,7 @@ module.exports = class Command extends Commando.Command {
 						retry: `Invalid category. Available categories are ${types.map((x) => `\`${x}\``).join(', ')}.`
 					},
 					type: 'string',
+					match: 'content',
 				},
 			],
 		});

@@ -14,7 +14,7 @@ const imageUrlRegex = /\?size=2048$/g;
 module.exports = class Command extends Commando.Command {
 	constructor() {
 		super('profile', {
-			aliases: ['xp', 'rank'],
+			aliases: ['profile', 'xp', 'rank'],
 			category: 'levelling',
 			channel: 'guild',
 			description: 'Shows your profile.',

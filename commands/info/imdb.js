@@ -1,6 +1,5 @@
 const discord = require('discord.js');
 const fetch = require('node-fetch');
-const functions = require('../../utils/functions.js');
 
 const Commando = require('discord-akairo');
 
@@ -17,6 +16,7 @@ module.exports = class Command extends Commando.Command {
 						start: 'What movie/film/series do you want to know about?'
 					},
 					type: 'string',
+					match: 'content',
 				},
 			],
 		});
@@ -31,7 +31,7 @@ module.exports = class Command extends Commando.Command {
 			movie = await movie.json();
 
 			if (!movie.Response) {
-				const embed = new discord.MessageEmbed().setDescription(`${this.client.emotes.error} - ${await this.client.language(`Unable to find something about \`${args.join(' ')}\``, message)}`).setColor('RED');
+				const embed = new discord.MessageEmbed().setDescription(`${this.client.emotes.error} Unable to find something about \`${query}\`.`).setColor('RED');
 				return msg.edit({ embeds: [embed] });
 			}
 
@@ -43,11 +43,11 @@ module.exports = class Command extends Commando.Command {
 				.setFooter(`${await this.client.language('Ratings:', message)} ${movie.imdbRating} | ${await this.client.language('Seasons:', message)} ${movie.totalSeasons || '0'}`)
 				.addField((await this.client.language('Country'), message), movie.Country, true)
 				.addField((await this.client.language('Languages'), message), movie.Language, true)
-				.addField((await this.client.language('Type'), message), functions.toTitleCase(movie.Type), true);
-			msg.edit({ embeds: [embed] });
+				.addField((await this.client.language('Type'), message), movie.Type.toTitleCase(), true);
+			return msg.edit({ embeds: [embed] });
 		} catch (err) {
 			const embed = new discord.MessageEmbed().setDescription((await this.client.language('Something went wrong :/'), message)).setColor('RED');
-			msg.edit({ embeds: [embed] });
+			return msg.edit({ embeds: [embed] });
 		}
 	}
 };

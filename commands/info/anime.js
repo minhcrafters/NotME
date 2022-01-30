@@ -45,6 +45,7 @@ module.exports = class Command extends Commando.Command {
 					prompt: {
 						start: 'What anime?'
 					},
+					match: 'content',
 					type: 'string',
 				},
 			],
@@ -90,7 +91,7 @@ module.exports = class Command extends Commando.Command {
 							.setTitle((json.title.romaji || json.title.native) + ' (NSFW)')
 							.setThumbnail(json.coverImage.large)
 							.setColor(json.coverImage.color)
-							.setDescription(`${desc.substring(0, 400)}...\n[${await this.client.language('Learn more', message)}](${json.siteUrl})`)
+							.setDescription(`${desc.length > 400 ? desc.substring(0, 400) + '...' : desc}\n[${await this.client.language('Learn more', message)}](${json.siteUrl})`)
 							.setImage(json.bannerImage)
 							.addField((await this.client.language('Genres', message)), (await this.client.language(json.genres.join(', '), message)))
 							// .addField('Is 18+', json.isAdult ? 'Yes' : 'No', true)
@@ -121,7 +122,7 @@ module.exports = class Command extends Commando.Command {
 						.setTitle((json.title.romaji || json.title.native))
 						.setThumbnail(json.coverImage.large)
 						.setColor(json.coverImage.color)
-						.setDescription(`${desc.substring(0, 400)}...\n[${await this.client.language('Learn more', message)}](${json.siteUrl})`)
+						.setDescription(`${desc.length > 400 ? desc.substring(0, 400) + '...' : desc}...\n[${await this.client.language('Learn more', message)}](${json.siteUrl})`)
 						.setImage(json.bannerImage)
 						.addField((await this.client.language('Genres', message)), (await this.client.language(json.genres.join(', '), message)))
 						// .addField('Is 18+', json.isAdult ? 'Yes' : 'No', true)

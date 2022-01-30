@@ -17,7 +17,8 @@ module.exports = class Command extends Commando.Command {
 				{
 					id: 'size',
 					prompt: {
-						start: 'Which size?'
+						start: 'What size?',
+						optional: true
 					},
 					type: 'integer',
 					default: 4096,
@@ -43,7 +44,10 @@ module.exports = class Command extends Commando.Command {
 		const embed = new MessageEmbed()
 			.setTitle((await this.client.language(`${user.username}'s Avatar`, message)))
 			.setColor(this.client.config.discord.accentColor)
-			.setDescription(`${await this.client.language('Image Size:', message)} ${size}\nURL: [${await this.client.language('Click here', message)}](${user.avatarURL({ dynamic: true, size: size })})`)
+			.setDescription([
+				`**${await this.client.language('Image Size:', message)}** ${size}`,
+				`**URL:** [${await this.client.language('Click here', message)}](${user.avatarURL({ dynamic: true, size: size })})`
+				].join('\r\n'))
 			.setImage(
 				user.displayAvatarURL({
 					dynamic: true,

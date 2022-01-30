@@ -9,7 +9,7 @@ module.exports = class UserInfo extends Commando.Command {
 	constructor() {
 		super('userinfo', {
 			aliases: ['userinfo', 'whois', 'user'],
-			category: 'info',
+			category: 'util',
 			description: 'Get information about a specific user across Discord (Yes, Discord, not within the server).',
 			args: [
 				{
@@ -117,7 +117,7 @@ module.exports = class UserInfo extends Commando.Command {
 							`**${await this.client.language('Album', message)}** -> ${zname}`,
 							`**${await this.client.language('Duration', message)}** -> ${moment(duration).format((duration / 1000) > 3600 ? 'HH:mm:ss' : 'mm:ss')}`
 						]);
-					} else if (type === 'CUSTOM_STATUS') {
+					} else if (type === 'CUSTOM') {
 						array.push((await this.client.language(name.toString(), message)));
 						array1.push(`${yname}`);
 					} else {
@@ -135,7 +135,7 @@ module.exports = class UserInfo extends Commando.Command {
 		}
 
 		if (message.channel.type != 'dm') {
-			message.guild.members
+			await message.guild.members
 				.fetch(user.id)
 				.then(async (user) => {
 					this.client.logger.log(user);

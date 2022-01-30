@@ -15,6 +15,7 @@ module.exports = class Command extends Commando.Command {
 						start: "Type the player's IGN please."
 					},
 					type: 'string',
+					match: 'content',
 				},
 			],
 		});

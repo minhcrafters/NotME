@@ -15,6 +15,7 @@ module.exports = class Command extends Commando.Command {
 						start: "What do you want to search?"
 					},
 					type: 'string',
+					match: 'content',
 				},
 			],
 		});

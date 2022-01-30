@@ -17,6 +17,7 @@ module.exports = class Command extends Commando.Command {
 						start: 'What song would you like to search?'
 					},
 					type: 'string',
+					match: 'content',
 				},
 			],
 		});
@@ -64,7 +65,7 @@ module.exports = class Command extends Commando.Command {
 			return ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'cancel'].some((answer) => answer.toLowerCase() === response.content.toLowerCase());
 		};
 
-		await msg.channel
+		return await msg.channel
 			.awaitMessages({
 				filter,
 				max: 1,

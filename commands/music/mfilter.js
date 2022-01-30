@@ -10,17 +10,20 @@ module.exports = class Command extends Commando.Command {
 			description: 'Sets filters to a queue. (The filter may sometimes cause music to stop playing, so please try again.)',
 			userPermissions: ['CONNECT', 'SPEAK'],
 			clientPermissions: ['CONNECT', 'SPEAK'],
-			// args: [
-			// 	{
-			// 		id: 'filter',
-			// 		type: 'string'
-			// 	}
-			// ]
+			args: [
+				{
+					id: 'filter',
+					type: 'string',
+					match: 'separate'
+				}
+			]
 		});
 	}
 
 	async exec(message, args) {		
 		const queue = this.client.player.getQueue(message.guild.id);
+
+		args = args.filter;
 
 		if (!message.member.voice.channel) return message.channel.send(`${this.client.emotes.error} - ${await this.client.language("You're not connected in any voice channel!", message)}`);
 

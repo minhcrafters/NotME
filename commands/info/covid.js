@@ -15,6 +15,7 @@ module.exports = class Command extends Commando.Command {
 						retry: 'Invalid country! Try again!'
 					},
 					type: 'string',
+					match: 'content',
 					default: 'overall'
 				},
 			],

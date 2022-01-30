@@ -3,8 +3,8 @@ const Commando = require('discord-akairo');
 
 module.exports = class Command extends Commando.Command {
 	constructor() {
-		super('fastclick', {
-			aliases: ['fast-click'],
+		super('fastclicker', {
+			aliases: ['fast-clicker', 'fast-click'],
 			category: 'games',
 			channel: 'guild',
 			description: 'autoclicekr',
@@ -15,7 +15,7 @@ module.exports = class Command extends Commando.Command {
 		await this.client.weky.QuickClick({
 			message: message,
 			embed: {
-				title: 'Quick Click',
+				title: 'Fast Clicker',
 				color: this.client.config.discord.accentColor,
 				footer: 'This is just a game.',
 				timestamp: true,

@@ -6,7 +6,7 @@ module.exports = class Command extends Commando.Command {
 	constructor() {
 		super('spotify', {
 			aliases: ['spotify'],
-			category: 'info',
+			category: 'util',
 			description: 'Shows Spotify presence of a user as an image.',
 			args: [
 				{

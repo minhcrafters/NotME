@@ -16,6 +16,15 @@ module.exports = class Command extends Commando.Command {
 					},
 					type: 'emoji',
 				},
+				{
+					id: 'size',
+					prompt: {
+						start: 'What size?',
+						optional: true
+					},
+					type: 'integer',
+					default: 128
+				}
 			],
 		});
 	}
@@ -54,7 +63,10 @@ module.exports = class Command extends Commando.Command {
 			const embed = new MessageEmbed()
 				.setTitle(emoji.name)
 				.setColor(this.client.config.discord.accentColor)
-				.setDescription(`URL: [Click here](${emoji.url})`)
+				.setDescription([
+					`**Image Size:** ${size}`
+					`*URL:** [Click here](${emoji.url})`
+				].join('\r\n'))
 				.setImage(emoji.url)
 				.setFooter((await this.client.language(`Requested by ${message.author.tag}`, message)), message.author.displayAvatarURL({ dynamic: true }))
 				.setTimestamp();
