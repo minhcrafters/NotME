@@ -18,7 +18,7 @@
   "dependencies": {
     "@discordjs/opus": "^0.7.0",
     "@discordjs/voice": "^0.7.5",
-    "@distube/yt-dlp": "^0.0.2",
+    "@distube/yt-dlp": "0.0.2",
     "@distube/ytdl-core": "^4.9.4",
     "@distube/ytpl": "^1.1.1",
     "@distube/ytsr": "^1.1.5",
@@ -60,7 +60,7 @@
     "discord-uno": "^2.0.21",
     "discord.js": "^13.6.0",
     "discord.js-pagination": "^1.0.3",
-    "distube": "^3.2.1",
+    "distube": "^3.2.3",
     "easy-number-formatter": "^1.0.3",
     "ejs": "^3.1.6",
     "enmap": "^5.8.7",

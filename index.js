@@ -250,11 +250,11 @@ const distube = new DisTube.default(client, {
 	plugins: [
 		new YtDlpPlugin(),
 	],
-	ytdlOptions: {
-		filter: 'audioonly',
-		quality: 'highest',
-		highWaterMark: 1 << 25,
-	},
+	// ytdlOptions: {
+	// 	filter: 'audioonly',
+	// 	quality: 'highest',
+	// 	highWaterMark: 1 << 25,
+	// },
 });
 
 client.player = distube;
