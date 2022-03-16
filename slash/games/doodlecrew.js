@@ -19,7 +19,7 @@ module.exports = class DoodleCrew extends SlashCommand {
 	}
 
 	async run(ctx) {
-		this.client.discordTogether.createTogetherCode(ctx.options.voiceChannel, 'doodlecrew').then(async (invite) => {
+		return this.client.discordTogether.createTogetherCode(ctx.options.voiceChannel, 'doodlecrew').then(async (invite) => {
 			const embed = new Discord.MessageEmbed()
 				.setAuthor('Doodle Crew')
 				.setColor(this.client.config.discord.accentColor)

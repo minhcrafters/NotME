@@ -11,7 +11,8 @@ module.exports = class Command extends Commando.Command {
 			args: [
 				{
 					id: 'voiceChannel',
-					type: 'voiceChannel'
+					type: 'voiceChannel',
+					default: m => m.member.voice.channel
 				}
 			]
 		});

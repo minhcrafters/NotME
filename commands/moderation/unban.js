@@ -28,7 +28,7 @@ module.exports = class Command extends Commando.Command {
 			return message.reply(`${this.client.emotes.error} - ${await this.client.language('Unable to find this user!', message)}`);
 		}
 
-		const bannedMembers = await message.guild.fetchBans();
+		const bannedMembers = await message.guild.bans.fetch();
 
 		if (!bannedMembers.find((user) => user.user.id === id)) {
 			return message.reply(`${this.client.emotes.error} - ${await this.client.language('That user is already unbanned!', message)}`);

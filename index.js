@@ -65,8 +65,8 @@ class Client extends AkairoClient {
     		commandUtil: true,
 			argumentDefaults: {
 				prompt: {
-					// modifyStart: text => `${text}\nType \`cancel\` to cancel this command.`,
-					// modifyRetry: text => `${text}\nType \`cancel\` to cancel this command.`,
+					// modifyStart: text => `${text}\nType the input in the chat, or type \`cancel\` to cancel this command.`,
+					// modifyRetry: text => `${text}\nType the input in the chat, or type \`cancel\` to cancel this command.`,
 					timeout: 'Time ran out, command has been cancelled.',
 					ended: 'Too many retries, command has been cancelled.',
 					cancel: 'Command has been cancelled.',
@@ -250,11 +250,11 @@ const distube = new DisTube.default(client, {
 	plugins: [
 		new YtDlpPlugin(),
 	],
-	// ytdlOptions: {
-	// 	filter: 'audioonly',
-	// 	quality: 'highest',
-	// 	highWaterMark: 1 << 25,
-	// },
+	ytdlOptions: {
+		filter: 'audioonly',
+		quality: 'highest',
+		highWaterMark: 1 << 25,
+	},
 });
 
 client.player = distube;
@@ -399,13 +399,16 @@ const creator = new SlashCreator({
 	applicationID: '873922961491525682',
 	publicKey: 'f17beca55681a830929225780ff0fc1805d8e5e0766c5378c84714692fd336d2',
 	token: process.env.TOKEN,
-	client
+	client: client
 });
 
-client.slashCreator = creator;
+creator
+	.withServer(new GatewayServer((handler) => client.ws.on('INTERACTION_CREATE', handler)))
+	.registerCommandsIn(path.join(__dirname, 'slash'))
+	.syncCommands();
 
-client.slashCreator
-	.on('debug', (log) => logger.log(log))
+creator
+	.on('debug', (log) => console.log(log))
 	.on('commandRun', (command, promise, ctx) => {
 		statcord.postCommand(command.commandName, ctx.user.id);
 		console.log('[===== Slash Command executed =====]');
@@ -497,5 +500,3 @@ client.on('messageUpdate', async (message) => {
 });
 
 client.login(client.config.discord.token);
-
-module.exports.client = client;

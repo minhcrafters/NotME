@@ -14,6 +14,6 @@ module.exports = class Command extends Commando.Command {
 	}
 
 	async exec(message) {
-		game.handleMessage(message);
+		return game.handleMessage(message);
 	}
 };

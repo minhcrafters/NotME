@@ -43,6 +43,7 @@ module.exports = class Command extends Commando.Command {
 			.ban({ days: days, reason: reason })
 			.then(async () => {
 				message.reply(`${this.client.emotes.success} - ${await this.client.language(`Banned **${member.user.tag}** for:`, message)}\n\`\`\`js\n${reason}\n\`\`\``);
+				member.user.send(`You have been banned ${days ? `for ${days}` : ''}. Reason: \`\`\`js\n${reason}\n\`\`\``);
 			})
 			.catch((err) => {
 				return message.channel.send(`${this.client.emotes.error} - **ERROR**\n\`\`\`js\n${err}\n\`\`\``);

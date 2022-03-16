@@ -16,7 +16,6 @@ module.exports = class Command extends Commando.Command {
 						start: 'Which text channel would you like to set my chatbot feature to?'
 					},
 					type: 'textChannel',
-					default: null,
 				},
 			],
 			userPermissions: ['MANAGE_CHANNELS'],

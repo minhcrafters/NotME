@@ -75,6 +75,10 @@ module.exports = class MessageListener extends Listener {
 				db.set(`${message.guild.id}.musicFilters`, []);
 			}
 
+			// if (message.guild.id == '944259446736048200') {
+			// 	db.set(`${message.guild.id}.chatbotChannel`, '944259446736048203');
+			// }
+
 			const database = db.get(`${message.guild.id}`);
 
 				if (message.content.includes(startDelim) && message.content.includes(endDelim)) {
@@ -98,7 +102,7 @@ module.exports = class MessageListener extends Listener {
 							});
 					}
 				} else {
-					if (message.content == '' || message.content.includes('hmm')) return;
+					if (message.content == '' || message.content.includes('hmm') || (message.type == 'REPLY' && message.mentions.members.first() !== message.guild.me)) return;
 
 					var options = {
 						method: 'GET',
