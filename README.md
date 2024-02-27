@@ -1,7 +1,8 @@
 # NotME
-Yet another generic, multi-purpose Discord bot.
 
-[![Discord Bots](https://top.gg/api/widget/873922961491525682.svg)](https://top.gg/bot/873922961491525682)
+## This bot is no longer maintained as I was basically a script kiddie at the time.
+
+Yet another generic, multi-purpose Discord bot.
 
 # Installation and Setup
 1. `npm i`
