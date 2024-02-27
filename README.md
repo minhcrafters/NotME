@@ -1,6 +1,6 @@
 # NotME
 
-## This bot is no longer maintained as I was basically a script kiddie at the time.
+## This bot is no longer actively maintained as I no longer have an interest in coding Discord bots and I was basically a script kiddie at the time.
 
 Yet another generic, multi-purpose Discord bot.
 
